@@ -34,9 +34,10 @@ namespace MassTransitRetryPolicy
         {
             var config = new BusConfiguration
             {
-                ConnectionUri = "sb://adlibris-product-ais-rickard-bus-dev.servicebus.windows.net",
-                Login = "RootManageSharedAccessKey",
-                Password = "sAWcvN8kPyhR7bUvcwIvfNL0OWeajuHluKkHff52n+M="
+                // Endpoint=sb://rrdevtest.servicebus.windows.net/;SharedAccessKeyName=temp;SharedAccessKey=NntfMdNkQCW1oLNs1Q4ZGi4uxo/Ih+ji4ZIWVf/fpcs=
+                ConnectionUri = "sb://rrdevtest.servicebus.windows.net",
+                Login = "temp",
+                Password = "NntfMdNkQCW1oLNs1Q4ZGi4uxo/Ih+ji4ZIWVf/fpcs="
             };
 
             var configurator = new AzureSbBusConfigurator(config);
