@@ -5,10 +5,11 @@ using Microsoft.ServiceBus;
 
 namespace MassTransitRetryPolicy.MassTransitHelpers
 {
+    /// <summary>
+    ///  Helps configure buses, using a Configuration class.
+    /// </summary>
     public class AzureSbBusConfigurator
     {
-        //public readonly List<Type> Consumers = new List<Type>();
-
         public BusConfiguration Configuration { get; set; }
 
         public AzureSbBusConfigurator(BusConfiguration configuration)
