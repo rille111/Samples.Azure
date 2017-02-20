@@ -51,9 +51,9 @@ namespace MassTransitRetryPolicy
                     });
 
                     // TODO: below doesn't work
-                    //cfg.UseRetry(r => Retry.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5)));
+                    cfg.UseRetry(r => r.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5)));
                     // TODO: but this works ..
-                    cfg.UseRetry(Retry.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5))); // works
+                    // cfg.UseRetry(Retry.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5))); // works
                 });
             return bus;
         }
