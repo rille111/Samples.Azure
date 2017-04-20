@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace AppInsightsLabs
+namespace AppInsightsLabs.Infrastructure
 {
     public class AppInsightsCloudBlobReader
     {

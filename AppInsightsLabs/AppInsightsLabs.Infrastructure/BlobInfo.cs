@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppInsightsLabs
+namespace AppInsightsLabs.Infrastructure
 {
     public class BlobInfo
     {

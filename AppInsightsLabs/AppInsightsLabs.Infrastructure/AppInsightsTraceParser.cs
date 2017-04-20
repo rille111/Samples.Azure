@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace AppInsightsLabs
+namespace AppInsightsLabs.Infrastructure
 {
     public class AppInsightsTraceParser
     {
