@@ -12,5 +12,6 @@ namespace AppInsightsLabs
         /// </summary>
         public Uri Uri { get; set; }
         public DateTimeOffset? LastModified { get; set; }
+        public string Folder { get; set; }
     }
 }

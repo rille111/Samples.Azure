@@ -13,10 +13,8 @@ namespace AppInsightsLabs
             const string containerFolder = "adlibris-product-appinsight-dev_c73480e495214ae0916e8ffbe4587732/Messages/";
 
             var blobReader = new AppInsightsCloudBlobReader(connString, containerName, containerFolder);
-            //var reactiveBlobReader = new ReactiveBlobReader(blobReader)
-
-            var d = blobReader.GetLatestBlobInfo();
-            var blobs = blobReader.GetAllBlobInfos();
+            var latestBlob = blobReader.GetLatestBlobInfo();
+            var blobs = blobReader.GetBlobInfosFromSubFolder(latestBlob.Folder);
             var everyLine = blobs.SelectMany(p => blobReader.ToStringsForEveryLine(p));
             var everyLineAsList = everyLine.ToList(); // Takes time
             var traceParser = new AppInsightsTraceParser();
