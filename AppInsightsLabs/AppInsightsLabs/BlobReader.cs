@@ -14,19 +14,21 @@ namespace AppInsightsLabs
     {
         private readonly string _connString;
         private readonly string _containerName;
+        private readonly string _containerFolder;
 
-        public BlobReader(string connString, string containerName)
+        public BlobReader(string connString, string containerName, string containerFolder = "")
         {
             _connString = connString;
             _containerName = containerName;
+            _containerFolder = containerFolder;
         }
 
-        public BlobInfo[] GetBlobInfos(string folder)
+        public BlobInfo[] GetBlobInfos()
         {
             var storageAccount = CloudStorageAccount.Parse(_connString);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(_containerName);
-            var blobs = ListBlobs(container, folder).GetAwaiter().GetResult();
+            var blobs = ListBlobs(container).GetAwaiter().GetResult();
             return blobs;
         }
         
@@ -47,9 +49,9 @@ namespace AppInsightsLabs
             return stringlines;
         }
 
-        private static async Task<BlobInfo[]> ListBlobs(CloudBlobContainer container, string folder)
+        private async Task<BlobInfo[]> ListBlobs(CloudBlobContainer container)
         {
-            var result = (await ListBlobsSegments(container, folder))
+            var result = (await ListBlobsSegments(container))
                 .Select(i =>
                 {
                     var date = i.Segments[4].Substring(0, i.Segments[4].Length - 1);
@@ -76,11 +78,11 @@ namespace AppInsightsLabs
             return result;
         }
 
-        private static async Task<List<Uri>> ListBlobsSegments(CloudBlobContainer container, string folder)
+        private async Task<List<Uri>> ListBlobsSegments(CloudBlobContainer container)
         {
-            var resultSegment = string.IsNullOrEmpty(folder)
+            var resultSegment = string.IsNullOrEmpty(_containerFolder)
                 ? await container.ListBlobsSegmentedAsync(string.Empty, true, BlobListingDetails.All, 10, null, null, null)
-                : await container.GetDirectoryReference(folder).ListBlobsSegmentedAsync(true, BlobListingDetails.All, 10, null, null, null);
+                : await container.GetDirectoryReference(_containerFolder).ListBlobsSegmentedAsync(true, BlobListingDetails.All, 10, null, null, null);
 
             var blobItemsToReturn = resultSegment.Results
                 .Select(blobItem => blobItem.StorageUri.PrimaryUri)
