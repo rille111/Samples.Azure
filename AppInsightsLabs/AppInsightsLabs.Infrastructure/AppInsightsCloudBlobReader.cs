@@ -47,10 +47,10 @@ namespace AppInsightsLabs.Infrastructure
         /// 2. Chooses the 'newest' folder
         /// 3. Scans the files
         /// </summary>
-        /// <returns></returns>
-        public BlobInfo GetLatestBlobInfo(string inFolder)
+        /// <param name="eventTypeFolder">e.g. "Messages" or "Exceptions" </param>
+        public BlobInfo GetLatestBlobInfo(string eventTypeFolder)
         {
-            var folder = $"{_rootFolder}/{inFolder}";
+            var folder = $"{_rootFolder}/{eventTypeFolder}";
             
             var blobs = _container.GetDirectoryReference(folder).ListBlobs(false, BlobListingDetails.None);
             var folders = blobs.Where(b => b is CloudBlobDirectory).ToList();
@@ -133,7 +133,7 @@ namespace AppInsightsLabs.Infrastructure
         {
             return new BlobInfo
             {
-                Name = string.Join(string.Empty, blobItem.StorageUri.PrimaryUri.Segments.Skip(2)),
+                FileName = blobItem.StorageUri.PrimaryUri.Segments.Last(),
                 Uri = blobItem.StorageUri.PrimaryUri,
                 Folder = string.Join(string.Empty, blobItem.StorageUri.PrimaryUri.Segments.Skip(2).Take(4)),
                 LastModified = blobItem.Properties?.LastModified

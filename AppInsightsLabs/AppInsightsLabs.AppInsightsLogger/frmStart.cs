@@ -31,28 +31,32 @@ namespace AppInsightsLabs.AppInsightsLogger
                 return;
             }
 
-            //SeverityLevel x;
             switch (comboBox1.SelectedIndex)
             {
                 case 0:
                     _logger.Debug(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Debug trace!");
                     break;
                 case 1:
-                    _logger.Warn(textBox1.Text);
+                    _logger.Info(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Info trace!");
                     break;
                 case 2:
-                    _logger.Info(textBox1.Text);
+                    _logger.Warn(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Warn trace!");
                     break;
                 case 3:
                     _logger.Error(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Error trace!");
                     break;
                 case 4:
                     _logger.Fatal(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Fatal trace!");
                     break;
                 default:
                     break;
             }
-            textBox2.AppendText(timestamp + "Sent trace!");
+            
         }
     }
 }

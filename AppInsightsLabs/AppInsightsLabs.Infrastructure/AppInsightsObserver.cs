@@ -14,7 +14,7 @@ namespace AppInsightsLabs.Infrastructure
         public List<TraceItem> TraceItems = new List<TraceItem>();
         public delegate void TraceItemsAddedDelegate<in T>(T traces);
         public event TraceItemsAddedDelegate<IEnumerable<TraceItem>> OnTraceItemsAdded;
-        private BlobInfo _lastTraceItemAddedAsBlobInfo;
+        private BlobInfo _latestFetchedBlobInfo;
 
 
         public AppInsightsObserver(AppInsightsCloudBlobReader blobReader, AppInsightsTraceParser traceParser)
@@ -25,8 +25,8 @@ namespace AppInsightsLabs.Infrastructure
 
         public void PopulateTracesAndStartTimer(TimeSpan pollingInterval)
         {
-            _lastTraceItemAddedAsBlobInfo = _blobReader.GetLatestBlobInfo("Messages");
-            var blobs = _blobReader.GetBlobInfosFromFolder(_lastTraceItemAddedAsBlobInfo.Folder);
+            _latestFetchedBlobInfo = _blobReader.GetLatestBlobInfo("Messages");
+            var blobs = _blobReader.GetBlobInfosFromFolder(_latestFetchedBlobInfo.Folder);
             var traces = CreateTraceItemsFromBlobs(blobs);
             TraceItems = traces;
             OnTraceItemsAdded?.Invoke(traces);
@@ -46,8 +46,8 @@ namespace AppInsightsLabs.Infrastructure
         {
             // 1: Investigate if new blobs have arrived to the last folder we investigated
             var newBlobsInLastFolder = _blobReader
-                .GetBlobInfosFromFolder(_lastTraceItemAddedAsBlobInfo.Folder)
-                .Where(p => p.LastModified > _lastTraceItemAddedAsBlobInfo.LastModified)
+                .GetBlobInfosFromFolder(_latestFetchedBlobInfo.Folder)
+                .Where(p => p.LastModified > _latestFetchedBlobInfo.LastModified)
                 .ToList();
 
             if (newBlobsInLastFolder.Any())
@@ -55,21 +55,29 @@ namespace AppInsightsLabs.Infrastructure
                 // 2: Add those
                 var newTraces = CreateTraceItemsFromBlobs(newBlobsInLastFolder);
                 TraceItems.AddRange(newTraces);
-                _lastTraceItemAddedAsBlobInfo = newBlobsInLastFolder.Last();
+                _latestFetchedBlobInfo = newBlobsInLastFolder.Last();
                 OnTraceItemsAdded?.Invoke(newTraces);
             }
             else
             {
-                return;
+                
             }
 
 
-            // 3: See if there's a new hour-folder
-            // 4: Add those, and set last folder
-            // 5. See if there's a new day-folder
-            // 6. Get the last hour-folder from that day-folder
-            // 7. Add those
-            // 8. And set the last folder
+            // 3: See if there's a new hour-folder in the storage based on the absolue newest blob
+            var absoluteNewestBlob = _blobReader.GetLatestBlobInfo("Messages");
+            if (absoluteNewestBlob.FolderHourPart != _latestFetchedBlobInfo.FolderHourPart)
+            {
+                // 4: Add those, and set last folder
+                var newBlobsInNewFolder = _blobReader
+                    .GetBlobInfosFromFolder(absoluteNewestBlob.Folder)
+                    .Where(p => p.LastModified > _latestFetchedBlobInfo.LastModified)
+                    .ToList();
+                var evenNewerTraces = CreateTraceItemsFromBlobs(newBlobsInNewFolder);
+                TraceItems.AddRange(evenNewerTraces);
+                _latestFetchedBlobInfo = absoluteNewestBlob;
+                OnTraceItemsAdded?.Invoke(evenNewerTraces);
+            }
         }
 
         private List<TraceItem> CreateTraceItemsFromBlobs(IEnumerable<BlobInfo> blobs)

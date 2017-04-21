@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using AppInsightsLabs.Infrastructure;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace AppInsightsLabs
