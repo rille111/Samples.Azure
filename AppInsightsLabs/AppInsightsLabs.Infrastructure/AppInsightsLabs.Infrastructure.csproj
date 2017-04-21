@@ -70,7 +70,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppInsightsCloudBlobObserver.cs" />
+    <Compile Include="AppInsightsObserver.cs" />
     <Compile Include="AppInsightsCloudBlobReader.cs" />
     <Compile Include="AppInsightsTraceParser.cs" />
     <Compile Include="BlobInfo.cs" />

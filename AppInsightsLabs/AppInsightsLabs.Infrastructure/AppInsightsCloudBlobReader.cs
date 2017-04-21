@@ -10,15 +10,16 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace AppInsightsLabs.Infrastructure
 {
+    // ReSharper disable RedundantArgumentDefaultValue
     public class AppInsightsCloudBlobReader
     {
-        private readonly string _containerFolder;
+        private readonly string _rootFolder;
         private readonly CloudBlobClient _blobClient;
         private readonly CloudBlobContainer _container;
 
-        public AppInsightsCloudBlobReader(string connString, string containerName, string containerFolder = "")
+        public AppInsightsCloudBlobReader(string connString, string containerName, string rootFolder = "")
         {
-            _containerFolder = containerFolder;
+            _rootFolder = rootFolder.Trim(new []{'/', '\\'});
 
             var storageAccount = CloudStorageAccount.Parse(connString);
             _blobClient = storageAccount.CreateCloudBlobClient();
@@ -30,15 +31,15 @@ namespace AppInsightsLabs.Infrastructure
         /// </summary>
         public List<BlobInfo> GetAllBlobInfos()
         {
-            return ListBlobs(_containerFolder).ConfigureAwait(false).GetAwaiter().GetResult();
+            return ListBlobs(_rootFolder).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
-        /// Get infos for all blobs in a given sub folder.
+        /// Get infos for all blobs in a given folder.
         /// </summary>
-        public List<BlobInfo> GetBlobInfosFromSubFolder(string folder)
+        public List<BlobInfo> GetBlobInfosFromFolder(string folder)
         {
-            return ListBlobs(folder).ConfigureAwait(false).GetAwaiter().GetResult();
+            return ListBlobs($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -47,35 +48,37 @@ namespace AppInsightsLabs.Infrastructure
         /// 3. Scans the files
         /// </summary>
         /// <returns></returns>
-        public BlobInfo GetLatestBlobInfo()
+        public BlobInfo GetLatestBlobInfo(string inFolder)
         {
-            var blobs = _container.GetDirectoryReference(_containerFolder).ListBlobs(false, BlobListingDetails.None);
+            var folder = $"{_rootFolder}/{inFolder}";
+            
+            var blobs = _container.GetDirectoryReference(folder).ListBlobs(false, BlobListingDetails.None);
             var folders = blobs.Where(b => b is CloudBlobDirectory).ToList();
             var folderDates = new List<DateTime>();
 
             // Find out last day
-            foreach (var folder in folders)
+            foreach (var subFolder in folders)
             {
-                var datePartOfFolder = folder.Uri.Segments.Last().Trim('/');
+                var datePartOfFolder = subFolder.Uri.Segments.Last().Trim('/');
                 var folderDate = DateTime.ParseExact(datePartOfFolder, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 folderDates.Add(folderDate);
             }
             var lastDay = folderDates.OrderBy(p => p).Last();
-            var lastDayFolder = _containerFolder + $"{lastDay.ToString("yyyy-MM-dd")}";
+            var lastDayFolder = $"{folder}/{lastDay.ToString("yyyy-MM-dd")}";
 
             // Find out last hour of that day
             var folderWithHours = _container.GetDirectoryReference(lastDayFolder).ListBlobs(false, BlobListingDetails.None);
             var folderHours = new List<int>();
-            foreach (var folder in folderWithHours)
+            foreach (var subFolder in folderWithHours)
             {
-                var hourPartOfFolder = folder.Uri.Segments.Last().Trim('/');
+                var hourPartOfFolder = subFolder.Uri.Segments.Last().Trim('/');
                 var folderHour = int.Parse(hourPartOfFolder);
                 folderHours.Add(folderHour);
             }
             var lastHour = folderHours.OrderBy(p => p).Last();
 
             // Determine newest day/hour folder
-            var lastDayHourFolder = _containerFolder + $"{lastDay.ToString("yyyy-MM-dd")}/{lastHour.ToString().PadLeft(2, '0')}";
+            var lastDayHourFolder =  $"{folder}/{lastDay.ToString("yyyy-MM-dd")}/{lastHour.ToString().PadLeft(2, '0')}";
 
             // List the blobs and choose the newest
             var blobsInThatFolder = ListBlobs(lastDayHourFolder).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -133,7 +136,6 @@ namespace AppInsightsLabs.Infrastructure
                 Name = string.Join(string.Empty, blobItem.StorageUri.PrimaryUri.Segments.Skip(2)),
                 Uri = blobItem.StorageUri.PrimaryUri,
                 Folder = string.Join(string.Empty, blobItem.StorageUri.PrimaryUri.Segments.Skip(2).Take(4)),
-                //Folder = string.Join(string.Empty, blobItem.StorageUri.PrimaryUri.Segments.Skip(4).Take(2)),
                 LastModified = blobItem.Properties?.LastModified
             };
         }
