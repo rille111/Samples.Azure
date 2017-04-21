@@ -15,7 +15,7 @@ namespace AppInsightsLabs
             const string containerFolder = "adlibris-product-appinsight-dev_c73480e495214ae0916e8ffbe4587732";
 
             var blobReader = new AppInsightsCloudBlobReader(connString, containerName, containerFolder);
-            var aiObserver = new AppInsightsObserver(blobReader);
+            var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsTraceParser());
             aiObserver.OnTraceItemsAdded += blobInfos =>
             {
                 foreach (var blobInfo in blobInfos)
@@ -24,7 +24,7 @@ namespace AppInsightsLabs
                 }
             };
 
-            aiObserver.PopulateTraces();
+            aiObserver.PopulateTracesAndStartTimer(TimeSpan.FromSeconds(1));
 
             Console.WriteLine("\n\nPress any key to exit ..");
             Console.ReadKey();
