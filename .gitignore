@@ -250,3 +250,5 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+AppInsightsLabs/AppInsightsLabs/config.json
+AppInsightsLabs/AppInsightsLabs.AppInsightsLogger/log.config.json

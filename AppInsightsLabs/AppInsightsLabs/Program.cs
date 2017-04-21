@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using AppInsightsLabs.Infrastructure;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AppInsightsLabs
 {
@@ -8,11 +11,11 @@ namespace AppInsightsLabs
         // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
-
-            const string connString =
-                "DefaultEndpointsProtocol=https;AccountName=adlaisstordev;AccountKey=4ulhZQVgcDs/HXfWMx8ZKTAMcjc2nHCE97zYrrHSA8xufBJR2Ql++t4Z6eKkRvYa3zDM7s9mdP7xXa/HD67bpQ==;EndpointSuffix=core.windows.net";
-            const string containerName = "adlibris-product-ais-appinsights-dump";
-            const string containerFolder = "adlibris-product-appinsight-dev_c73480e495214ae0916e8ffbe4587732";
+            // Make sure config.json exists, is set to 'Content' and 'Copy Always'.
+            var config = JObject.Parse(File.ReadAllText("./config.json"));
+            var connString = (string) config["StorageAccountConnectionString"] ;
+            var containerName = (string)config["StorageAccountContainerName"]; 
+            var containerFolder = (string)config["StorageAccountAppInsightsDumpRootFolder"];
 
             var blobReader = new AppInsightsCloudBlobReader(connString, containerName, containerFolder);
             var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsTraceParser());
