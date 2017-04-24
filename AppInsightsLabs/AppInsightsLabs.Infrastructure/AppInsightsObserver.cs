@@ -6,6 +6,13 @@ using System.Timers;
 
 namespace AppInsightsLabs.Infrastructure
 {
+    /// <summary>
+    /// TODO: When the timer Ticks, pause the timer to investigate what new traces exist. Then resume.
+    /// TODO: I need to debug, why doesnt the logic find new blobs when I know they are there?
+    /// TODO: I need to see what happens when a new folder with new blobs are created
+    /// TODO: Then, lift this into the WebDashboard in a AI-RealTime-Monitor and add filtering
+    /// TODO: As a bonus, create a SignalR hub and consume it with React.
+    /// </summary>
     public class AppInsightsObserver
     {
         private readonly AppInsightsCloudBlobReader _blobReader;
