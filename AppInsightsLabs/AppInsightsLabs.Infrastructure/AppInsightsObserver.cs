@@ -48,9 +48,7 @@ namespace AppInsightsLabs.Infrastructure
         {
             _latestFetchedTraceBlobInfo = _blobReader.GetLatestBlobInfo("Messages");
             var blobs = _blobReader.GetBlobInfosFromFolder(_latestFetchedTraceBlobInfo.Folder);
-            var traces = CreateTraceItemsFromBlobs(blobs);
-            TraceItems = traces;
-            OnTraceItemsAdded?.Invoke(traces);
+            AddTraces(blobs);
 
             _traceUpdateTimer = new Timer(pollingInterval.TotalMilliseconds);
             _traceUpdateTimer.Elapsed += PollTraces;
@@ -65,68 +63,38 @@ namespace AppInsightsLabs.Infrastructure
         /// </summary>
         private void PollTraces(object sender, ElapsedEventArgs e)
         {
-            CheckForNewTraces();
+            _traceUpdateTimer.Stop();
 
-            var traces = GetNewBlobs(_latestFetchedTraceBlobInfo);
+            var blobs = GetNewerBlobsFromSameFolder(_latestFetchedTraceBlobInfo);
+            AddTraces(blobs);
+
+            _traceUpdateTimer.Start();
         }
 
-        private object GetNewBlobs(BlobInfo latestFetchedTraceBlobInfo)
-        {
-            
-        }
-
-        private void PollMessages(object sender, ElapsedEventArgs e)
-        {
-            CheckForNewTraces();
-        }
-
-
-
-        public void CheckForNewTraces()
+        private List<BlobInfo> GetNewerBlobsFromSameFolder(BlobInfo latestFetchedTraceBlobInfo)
         {
             // 1: Investigate if new blobs have arrived to the last folder we investigated
             var newBlobsInLastFolder = _blobReader
-                .GetBlobInfosFromFolder(_latestFetchedTraceBlobInfo.Folder)
-                .Where(p => p.LastModified > _latestFetchedTraceBlobInfo.LastModified)
+                .GetBlobInfosFromFolder(latestFetchedTraceBlobInfo.Folder)
+                .Where(p => p.LastModified > latestFetchedTraceBlobInfo.LastModified)
                 .ToList();
-
-            if (newBlobsInLastFolder.Any())
-            {
-                // 2: Add those
-                var newTraces = CreateTraceItemsFromBlobs(newBlobsInLastFolder);
-                TraceItems.AddRange(newTraces);
-                _latestFetchedTraceBlobInfo = newBlobsInLastFolder.Last();
-                OnTraceItemsAdded?.Invoke(newTraces);
-            }
-            else
-            {
-
-            }
-
-            // 3: See if there's a new hour-folder in the storage based on the absolue newest blob
-            var absoluteNewestBlob = _blobReader.GetLatestBlobInfo("Messages");
-            if (absoluteNewestBlob.FolderHourPart != _latestFetchedTraceBlobInfo.FolderHourPart)
-            {
-                // 4: Add those, and set last folder
-                var newBlobsInNewFolder = _blobReader
-                    .GetBlobInfosFromFolder(absoluteNewestBlob.Folder)
-                    .Where(p => p.LastModified > _latestFetchedTraceBlobInfo.LastModified)
-                    .ToList();
-                var evenNewerTraces = CreateTraceItemsFromBlobs(newBlobsInNewFolder);
-                TraceItems.AddRange(evenNewerTraces);
-                _latestFetchedTraceBlobInfo = absoluteNewestBlob;
-                OnTraceItemsAdded?.Invoke(evenNewerTraces);
-            }
+            return newBlobsInLastFolder;
         }
 
-        private List<AppInsightsTraceItem> CreateTraceItemsFromBlobs(IEnumerable<BlobInfo> blobs)
+        public void AddTraces(List<BlobInfo> fromBlobs)
         {
-            var everyLine = blobs.SelectMany(p => _blobReader.ToStringsForEveryLine(p));
+            if (!fromBlobs.Any())
+                return;
+
+            // 2: Add those
+            var everyLine = fromBlobs.SelectMany(p => _blobReader.ToStringsForEveryLine(p));
             var everyLineAsList = everyLine.ToList(); // Takes time
 
             var traces = _itemParser.ParseTraceItems(everyLineAsList).ToList();
             TraceItems = traces;
-            return traces;
+            TraceItems.AddRange(traces);
+            _latestFetchedTraceBlobInfo = fromBlobs.Last();
+            OnTraceItemsAdded?.Invoke(traces);
         }
 
         #endregion
