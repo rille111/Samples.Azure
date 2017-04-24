@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace AppInsightsLabs.Infrastructure
+namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
     public class AppInsightsEventItem : AppInsightsItem
     {

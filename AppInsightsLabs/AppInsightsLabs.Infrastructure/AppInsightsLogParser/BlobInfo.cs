@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Linq;
 
-namespace AppInsightsLabs.Infrastructure
+namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
     public class BlobInfo
     {
@@ -20,9 +21,14 @@ namespace AppInsightsLabs.Infrastructure
         /// The complete folder path
         /// </summary>
         public string Folder { get; set; }
+        /// <summary>
+        /// Only the day part. May contain '/'. Example "2004-12-31"
+        /// </summary>
+        public string FolderDayPart => string.Join(string.Empty, Uri.Segments.Skip(4).Take(1)).Trim('/');
+        /// <summary>
+        /// Only the day part. May contain '/'. Example "2004-12-31"
+        /// </summary>
+        public string FolderHourPart => string.Join(string.Empty, Uri.Segments.Skip(5).Take(1)).Trim('/');
 
-        public string FolderDatePart => Uri.Segments[4].Trim('/');
-
-        public string FolderHourPart => Uri.Segments[5].Trim('/');
     }
 }

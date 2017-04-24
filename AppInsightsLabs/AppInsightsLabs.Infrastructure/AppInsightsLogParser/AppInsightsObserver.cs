@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 
-namespace AppInsightsLabs.Infrastructure
+namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
     /// <summary>
-    /// TODO: I need to debug, why doesnt the logic find new blobs when I know they are there?
-    /// TODO: I need to see what happens when a new folder with new blobs are created
-    /// TODO: Then, lift this into the WebDashboard in a AI-RealTime-Monitor and add filtering
-    /// TODO: As a bonus, create a SignalR hub and consume it with React.
+    /// 
     /// </summary>
     public class AppInsightsObserver
     {
@@ -17,7 +14,7 @@ namespace AppInsightsLabs.Infrastructure
         public string CustomEventsFolderName = "Event";
         public string ExceptionsFolderName = "Exceptions";
 
-        private readonly AppInsightsCloudBlobReader _blobReader;
+        private readonly CloudBlobReader _blobReader;
         private readonly AppInsightsItemParser _itemParser;
         private readonly TimeSpan _pollingInterval;
 
@@ -41,7 +38,7 @@ namespace AppInsightsLabs.Infrastructure
         private Timer _eventUpdateTimer;
         private Timer _exceptionUpdateTimer;
 
-        public AppInsightsObserver(AppInsightsCloudBlobReader blobReader, AppInsightsItemParser itemParser, TimeSpan pollingInterval)
+        public AppInsightsObserver(CloudBlobReader blobReader, AppInsightsItemParser itemParser, TimeSpan pollingInterval)
         {
             _blobReader = blobReader;
             _itemParser = itemParser;
@@ -75,29 +72,55 @@ namespace AppInsightsLabs.Infrastructure
             }
         }
 
-        private void ProcessItems(string inFolder, ref BlobInfo latestBlob, Action<List<BlobInfo>> itemAddingAction)
+        private void ProcessItems(string topFolder, ref BlobInfo latestBlob, Action<List<BlobInfo>> itemAddingAction)
         {
             if (latestBlob == null)
-            {
-                // We haven't gotten any exceptions logs yet, whatever the reason (initial load, folder 'Exceptions' is missing, or no blobs are in that folder)
-                latestBlob = _blobReader.GetLatestBlobInfo(inFolder);
+            { // Nothing has been fetched from this folder yet, we will try to do inital population
+                
+                //The reason may be: 1. initial populate 2. the folder is missing on the storage 3. no blobs exist in that folder
+                latestBlob = _blobReader.GetLatestBlobInfo(topFolder);
                 if (latestBlob != null)
                 {
-                    // Got at least one blob, for the inital load
+                    // A blob, time for the initial item-adding!
                     var initalBlobs = _blobReader.GetBlobInfosFromFolder(latestBlob.Folder);
                     itemAddingAction(initalBlobs);
                 }
             }
             else
-            {
-                // We have already gotten the inital blobs, investigate the latest to see if any new have arrived
-                var newerBlobs = GetNewerBlobsFromSameFolder(latestBlob);
-                if (newerBlobs.Any())
+            { // We already have items, time to populate new items if any
+
+                // First check for remaining blobs in the lastly checked folder and add them
+                var newerBlobsSameFolder = GetNewerBlobsFromSameFolder(latestBlob);
+                if (newerBlobsSameFolder != null && newerBlobsSameFolder.Any())
                 {
-                    itemAddingAction(newerBlobs);
-                    latestBlob = newerBlobs.Last();
+                    Console.WriteLine("Add new items from same folder as last!");
+                    itemAddingAction(newerBlobsSameFolder);
+                    latestBlob = newerBlobsSameFolder.Last();
+                }
+
+                // Then check for blobs in the newest folder if any exist, and add them.
+                var newerBlobsInOtherFolder = GetNewerBlobsFromNewestFolder(topFolder, latestBlob);
+                if (newerBlobsInOtherFolder != null && newerBlobsInOtherFolder.Any())
+                {
+                    Console.WriteLine("Add new items from completely new folder!");
+                    itemAddingAction(newerBlobsInOtherFolder);
+                    latestBlob = newerBlobsInOtherFolder.Last();
                 }
             }
+        }
+
+        private List<BlobInfo> GetNewerBlobsFromNewestFolder(string topFolder, BlobInfo compareBlob)
+        {
+            var latestBlobInNewestFolder = _blobReader.GetLatestBlobInfo(topFolder);
+
+            if (latestBlobInNewestFolder == null || latestBlobInNewestFolder.LastModified <= compareBlob.LastModified)
+                return null; // Nothing new
+
+            var blobs = _blobReader
+                .GetBlobInfosFromFolder(latestBlobInNewestFolder.Folder)
+                .Where(p => p.LastModified > compareBlob.LastModified)
+                .ToList();
+            return blobs;
         }
 
         private List<BlobInfo> GetNewerBlobsFromSameFolder(BlobInfo latestFetchedTraceBlobInfo)
@@ -121,7 +144,7 @@ namespace AppInsightsLabs.Infrastructure
             timer.Stop();
 
             ProcessItems(
-                inFolder: ExceptionsFolderName
+                topFolder: ExceptionsFolderName
                 , latestBlob: ref _latestFetchedExceptionBlobInfo
                 , itemAddingAction: AddExceptions);
 
@@ -154,7 +177,7 @@ namespace AppInsightsLabs.Infrastructure
             timer.Stop();
 
             ProcessItems(
-                inFolder: CustomEventsFolderName
+                topFolder: CustomEventsFolderName
                 , latestBlob: ref _latestFetchedEventBlobInfo
                 , itemAddingAction: AddEvents);
 
@@ -187,7 +210,7 @@ namespace AppInsightsLabs.Infrastructure
             timer.Stop();
 
             ProcessItems(
-                inFolder: TracesFolderName
+                topFolder: TracesFolderName
                 , latestBlob: ref _latestFetchedTraceBlobInfo
                 , itemAddingAction: AddTraces);
 

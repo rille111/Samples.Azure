@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace AppInsightsLabs.Infrastructure
+namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
     // ReSharper disable RedundantArgumentDefaultValue
-    public class AppInsightsCloudBlobReader
+    public class CloudBlobReader
     {
         private readonly string _rootFolder;
         private readonly CloudBlobClient _blobClient;
         private readonly CloudBlobContainer _container;
 
-        public AppInsightsCloudBlobReader(string connString, string containerName, string rootFolder = "")
+        public CloudBlobReader(string connString, string containerName, string rootFolder = "")
         {
             _rootFolder = rootFolder.Trim(new []{'/', '\\'});
 
@@ -40,6 +40,50 @@ namespace AppInsightsLabs.Infrastructure
         public List<BlobInfo> GetBlobInfosFromFolder(string folder)
         {
             return ListBlobs($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Get infos for all blobs in a given folder and its sub folders.
+        /// </summary>
+        public List<BlobInfo> GetBlobInfosFromFolderAndSubFolders(string folder)
+        {
+            var ret = new List<BlobInfo>();
+            var topFolder = $"{_rootFolder}/{folder}";
+            var allFolders = BuildFlatRecursiveFolderList(topFolder);
+            var tasks = new List<Task<List<BlobInfo>>>();
+            allFolders.Add(topFolder);
+            foreach (var currentFolder in allFolders)
+            {
+                var t = ListBlobs(currentFolder);
+                tasks.Add(t);
+            }
+
+            var blobInfoList = Task.WhenAll(tasks).ConfigureAwait(false).GetAwaiter().GetResult();
+            
+            foreach (var blobInfos in blobInfoList)
+            {
+                ret.AddRange(blobInfos);
+            }
+            return ret;
+        }
+
+        private List<string> BuildFlatRecursiveFolderList(string folder)
+        {
+            var ret = new List<string>();
+            var subFoldersBlobs = _container.GetDirectoryReference(folder)
+                .ListBlobs(false, BlobListingDetails.None)
+                .Where(b => b is CloudBlobDirectory)
+                .ToList();
+
+            foreach (var folderBlob in subFoldersBlobs)
+            {
+                var folderString = string.Join(string.Empty, folderBlob.Uri.Segments.Skip(2));
+                ret.Add(folderString);
+
+                var foldersToAdd = BuildFlatRecursiveFolderList(folderString);
+                ret.AddRange(foldersToAdd);
+            }
+            return ret;
         }
 
         /// <summary>

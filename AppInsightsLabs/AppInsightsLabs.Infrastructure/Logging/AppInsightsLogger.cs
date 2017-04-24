@@ -23,6 +23,7 @@ namespace AppInsightsLabs.Infrastructure.Logging
             
             ((InMemoryChannel) config.TelemetryChannel).DeveloperMode = true;
             ((InMemoryChannel) config.TelemetryChannel).MaxTelemetryBufferCapacity = 1;
+            ((InMemoryChannel) config.TelemetryChannel).SendingInterval = TimeSpan.FromSeconds(1);
 
 
             _telemetryClient = new TelemetryClient();
@@ -82,6 +83,7 @@ namespace AppInsightsLabs.Infrastructure.Logging
         public void CustomEvent(string text, ILoggerProperties properties = null)
         {
             _telemetryClient.TrackEvent(text, properties.ToDictionary());
+            _telemetryClient.Flush();
         }
     }
 }
