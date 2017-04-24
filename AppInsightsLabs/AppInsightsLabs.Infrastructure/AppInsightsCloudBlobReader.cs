@@ -56,6 +56,9 @@ namespace AppInsightsLabs.Infrastructure
             var folders = blobs.Where(b => b is CloudBlobDirectory).ToList();
             var folderDates = new List<DateTime>();
 
+            if (folders.Count == 0)
+                return null;
+
             // Find out last day
             foreach (var subFolder in folders)
             {

@@ -17,7 +17,7 @@ namespace AppInsightsLabs
             var containerFolder = (string)config["StorageAccountAppInsightsDumpRootFolder"];
 
             var blobReader = new AppInsightsCloudBlobReader(connString, containerName, containerFolder);
-            var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsItemParser());
+            var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsItemParser(), TimeSpan.FromSeconds(1));
             aiObserver.OnTraceItemsAdded += blobInfos =>
             {
                 foreach (var blobInfo in blobInfos)
@@ -26,7 +26,27 @@ namespace AppInsightsLabs
                 }
             };
 
-            aiObserver.PopulateTracesAndStartTimer(TimeSpan.FromSeconds(1));
+            aiObserver.OnEventItemsAdded += blobInfos =>
+            {
+                foreach (var blobInfo in blobInfos)
+                {
+                    Console.WriteLine(blobInfo.ToString());
+                }
+            };
+
+            aiObserver.OnExceptionItemsAdded += blobInfos =>
+            {
+                foreach (var blobInfo in blobInfos)
+                {
+                    Console.WriteLine(blobInfo.ToString());
+                }
+            };
+
+            //aiObserver.PopulateEventsAndStartTimer();
+            //aiObserver.PopulateTracesAndStartTimer(TimeSpan.FromSeconds(1));
+            aiObserver.StartPolling<AppInsightsExceptionItem>();
+            aiObserver.StartPolling<AppInsightsEventItem>();
+            aiObserver.StartPolling<AppInsightsTraceItem>();
 
             Console.WriteLine("\n\nPress any key to exit ..");
             Console.ReadKey();

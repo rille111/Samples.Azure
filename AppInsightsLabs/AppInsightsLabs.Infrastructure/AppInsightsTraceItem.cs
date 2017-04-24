@@ -2,7 +2,7 @@
 
 namespace AppInsightsLabs.Infrastructure
 {
-    public class AppInsightsTraceItem : AppInsightsItem
+    public class AppInsightsTraceItem : AppInsightsItem, IAppInsightsItem
     {
 
         public string SeverityLevel { get; set; }

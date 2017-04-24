@@ -6,6 +6,8 @@ using Newtonsoft.Json.Linq;
 
 namespace AppInsightsLabs.Infrastructure
 {
+    public interface IAppInsightsItem { }
+
     public abstract class AppInsightsItem
     {
         public DateTime TimeStampUtc { get; set; }
