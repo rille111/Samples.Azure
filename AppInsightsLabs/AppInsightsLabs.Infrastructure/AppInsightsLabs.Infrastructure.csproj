@@ -95,7 +95,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppInsightsItem.cs" />
-    <Compile Include="AppInsightsItemEvent.cs" />
+    <Compile Include="AppInsightsExceptionItem.cs" />
+    <Compile Include="AppInsightsEventItem.cs" />
     <Compile Include="AppInsightsObserver.cs" />
     <Compile Include="AppInsightsCloudBlobReader.cs" />
     <Compile Include="AppInsightsItemParser.cs" />
@@ -108,7 +109,7 @@
     <Compile Include="Logging\ILoggerProperties.cs" />
     <Compile Include="Logging\IMultiLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AppInsightsItemTrace.cs" />
+    <Compile Include="AppInsightsTraceItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

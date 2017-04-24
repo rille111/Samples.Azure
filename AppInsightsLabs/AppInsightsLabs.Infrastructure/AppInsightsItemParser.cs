@@ -7,14 +7,29 @@ namespace AppInsightsLabs.Infrastructure
 {
     public class AppInsightsItemParser
     {
-        public IEnumerable<AppInsightsItemTrace> ParseTraceItems(IEnumerable<string> jsonStrings)
+        public IEnumerable<AppInsightsTraceItem> ParseTraceItems(IEnumerable<string> jsonStrings)
         {
             var jsonStringList = jsonStrings.ToList();
-            return jsonStringList.Select(AppInsightsItemTrace.Create)
+            return jsonStringList.Select(AppInsightsTraceItem.Create)
                 .Where(p => p != null)
                 .OrderBy(p => p.TimeStampUtc);
         }
 
+        public IEnumerable<AppInsightsEventItem> ParseEventItems(IEnumerable<string> jsonStrings)
+        {
+            var jsonStringList = jsonStrings.ToList();
+            return jsonStringList.Select(AppInsightsEventItem.Create)
+                .Where(p => p != null)
+                .OrderBy(p => p.TimeStampUtc);
+        }
+
+        public IEnumerable<AppInsightsExceptionItem> ParseExceptionItems(IEnumerable<string> jsonStrings)
+        {
+            var jsonStringList = jsonStrings.ToList();
+            return jsonStringList.Select(AppInsightsExceptionItem.Create)
+                .Where(p => p != null)
+                .OrderBy(p => p.TimeStampUtc);
+        }
 
         private bool IsTrace(JObject jObject)
         {

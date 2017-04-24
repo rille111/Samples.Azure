@@ -2,7 +2,7 @@
 
 namespace AppInsightsLabs.Infrastructure
 {
-    public class AppInsightsItemTrace : AppInsightsItem
+    public class AppInsightsTraceItem : AppInsightsItem
     {
 
         public string SeverityLevel { get; set; }
@@ -15,9 +15,9 @@ namespace AppInsightsLabs.Infrastructure
         }
 
 
-        public static AppInsightsItemTrace Create(string jsonString)
+        public static AppInsightsTraceItem Create(string jsonString)
         {
-            var ret = new AppInsightsItemTrace();
+            var ret = new AppInsightsTraceItem();
             var o = JObject.Parse(jsonString);
             ret.ParseCommon(o);
             ret.SeverityLevel = (string)o["message"][0]["severityLevel"];
