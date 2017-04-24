@@ -17,12 +17,12 @@ namespace AppInsightsLabs
             var containerFolder = (string)config["StorageAccountAppInsightsDumpRootFolder"];
 
             var blobReader = new AppInsightsCloudBlobReader(connString, containerName, containerFolder);
-            var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsTraceParser());
+            var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsItemParser());
             aiObserver.OnTraceItemsAdded += blobInfos =>
             {
                 foreach (var blobInfo in blobInfos)
                 {
-                    Console.WriteLine(blobInfo.MessageRaw);
+                    Console.WriteLine(blobInfo.ToString());
                 }
             };
 

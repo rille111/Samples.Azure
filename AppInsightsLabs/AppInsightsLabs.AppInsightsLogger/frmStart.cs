@@ -53,6 +53,11 @@ namespace AppInsightsLabs.AppInsightsLogger
                     _logger.Fatal(textBox1.Text);
                     textBox2.AppendText(timestamp + "Sent Fatal trace!");
                     break;
+                case 5:
+                    _logger.CustomEvent(textBox1.Text);
+                    textBox2.AppendText(timestamp + "Sent Custom Event!");
+                    break;
+
                 default:
                     break;
             }

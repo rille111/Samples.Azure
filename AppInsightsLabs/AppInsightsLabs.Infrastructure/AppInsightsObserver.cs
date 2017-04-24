@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace AppInsightsLabs.Infrastructure
@@ -16,18 +15,17 @@ namespace AppInsightsLabs.Infrastructure
     public class AppInsightsObserver
     {
         private readonly AppInsightsCloudBlobReader _blobReader;
-        private readonly AppInsightsTraceParser _traceParser;
+        private readonly AppInsightsItemParser _itemParser;
 
-        public List<TraceItem> TraceItems = new List<TraceItem>();
+        public List<AppInsightsItemTrace> TraceItems = new List<AppInsightsItemTrace>();
         public delegate void TraceItemsAddedDelegate<in T>(T traces);
-        public event TraceItemsAddedDelegate<IEnumerable<TraceItem>> OnTraceItemsAdded;
+        public event TraceItemsAddedDelegate<IEnumerable<AppInsightsItemTrace>> OnTraceItemsAdded;
         private BlobInfo _latestFetchedBlobInfo;
 
-
-        public AppInsightsObserver(AppInsightsCloudBlobReader blobReader, AppInsightsTraceParser traceParser)
+        public AppInsightsObserver(AppInsightsCloudBlobReader blobReader, AppInsightsItemParser itemParser)
         {
             _blobReader = blobReader;
-            _traceParser = traceParser;
+            _itemParser = itemParser;
         }
 
         public void PopulateTracesAndStartTimer(TimeSpan pollingInterval)
@@ -41,7 +39,6 @@ namespace AppInsightsLabs.Infrastructure
             Timer updateTimer = new Timer(pollingInterval.TotalMilliseconds);
             updateTimer.Elapsed += PollTraces;
             updateTimer.Enabled = true;
-
         }
 
         private void PollTraces(object sender, ElapsedEventArgs e)
@@ -49,6 +46,12 @@ namespace AppInsightsLabs.Infrastructure
             CheckForNewTraces();
         }
 
+        /// <summary>
+        /// TODO: Work needs to be done here:
+        /// * Pause the timer when running this method and Resume it
+        /// * Doesnt seem to understand when there's a new folder to both add the traces from the old folder AND the new folder
+        ///  * It keeps checking the old folder .. or is it?
+        /// </summary>
         public void CheckForNewTraces()
         {
             // 1: Investigate if new blobs have arrived to the last folder we investigated
@@ -70,7 +73,6 @@ namespace AppInsightsLabs.Infrastructure
                 
             }
 
-
             // 3: See if there's a new hour-folder in the storage based on the absolue newest blob
             var absoluteNewestBlob = _blobReader.GetLatestBlobInfo("Messages");
             if (absoluteNewestBlob.FolderHourPart != _latestFetchedBlobInfo.FolderHourPart)
@@ -87,12 +89,12 @@ namespace AppInsightsLabs.Infrastructure
             }
         }
 
-        private List<TraceItem> CreateTraceItemsFromBlobs(IEnumerable<BlobInfo> blobs)
+        private List<AppInsightsItemTrace> CreateTraceItemsFromBlobs(IEnumerable<BlobInfo> blobs)
         {
             var everyLine = blobs.SelectMany(p => _blobReader.ToStringsForEveryLine(p));
             var everyLineAsList = everyLine.ToList(); // Takes time
             
-            var traces = _traceParser.ParseFromStrings(everyLineAsList).ToList();
+            var traces = _itemParser.ParseTraceItems(everyLineAsList).ToList();
             TraceItems = traces;
             return traces;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 
@@ -19,7 +20,11 @@ namespace AppInsightsLabs.Infrastructure.Logging
         public AppInsightsLogger(string instrumentationKey)
         {
             var config = new TelemetryConfiguration {InstrumentationKey = instrumentationKey};
-            config.TelemetryChannel.DeveloperMode = true;
+            
+            ((InMemoryChannel) config.TelemetryChannel).DeveloperMode = true;
+            ((InMemoryChannel) config.TelemetryChannel).MaxTelemetryBufferCapacity = 1;
+
+
             _telemetryClient = new TelemetryClient();
             
         }
@@ -72,6 +77,11 @@ namespace AppInsightsLabs.Infrastructure.Logging
             _telemetryClient.TrackTrace($"{text}\n{ex}", SeverityLevel.Critical, properties.ToDictionary());
             _telemetryClient.TrackException(ex, properties.ToDictionary());
             _telemetryClient.Flush();
+        }
+
+        public void CustomEvent(string text, ILoggerProperties properties = null)
+        {
+            _telemetryClient.TrackEvent(text, properties.ToDictionary());
         }
     }
 }
