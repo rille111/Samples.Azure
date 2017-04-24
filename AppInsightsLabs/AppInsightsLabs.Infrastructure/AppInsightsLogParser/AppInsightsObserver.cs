@@ -14,7 +14,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         public string CustomEventsFolderName = "Event";
         public string ExceptionsFolderName = "Exceptions";
 
-        private readonly CloudBlobReader _blobReader;
+        private readonly AiCloudBlobReader _blobReader;
         private readonly AppInsightsItemParser _itemParser;
         private readonly TimeSpan _pollingInterval;
 
@@ -30,15 +30,15 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         public event EventItemsAddedDelegate<IEnumerable<AppInsightsEventItem>> OnEventItemsAdded;
         public event ExceptionItemsAddedDelegate<IEnumerable<AppInsightsExceptionItem>> OnExceptionItemsAdded;
 
-        private BlobInfo _latestFetchedTraceBlobInfo;
-        private BlobInfo _latestFetchedEventBlobInfo;
-        private BlobInfo _latestFetchedExceptionBlobInfo;
+        private AiBlobInfo _latestFetchedTraceAiBlobInfo;
+        private AiBlobInfo _latestFetchedEventAiBlobInfo;
+        private AiBlobInfo _latestFetchedExceptionAiBlobInfo;
 
         private Timer _traceUpdateTimer;
         private Timer _eventUpdateTimer;
         private Timer _exceptionUpdateTimer;
 
-        public AppInsightsObserver(CloudBlobReader blobReader, AppInsightsItemParser itemParser, TimeSpan pollingInterval)
+        public AppInsightsObserver(AiCloudBlobReader blobReader, AppInsightsItemParser itemParser, TimeSpan pollingInterval)
         {
             _blobReader = blobReader;
             _itemParser = itemParser;
@@ -48,6 +48,9 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
         #region Common
 
+        /// <summary>
+        /// The first events that you hookup will give you items from the latest hour and then keep polling for more.
+        /// </summary>
         public void StartPolling<TWhatType>() where TWhatType : AppInsightsItem, new()
         {
             if (typeof(TWhatType) == typeof(AppInsightsTraceItem))
@@ -72,17 +75,17 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             }
         }
 
-        private void ProcessItems(string topFolder, ref BlobInfo latestBlob, Action<List<BlobInfo>> itemAddingAction)
+        private void ProcessItems(string topFolder, ref AiBlobInfo latestAiBlob, Action<List<AiBlobInfo>> itemAddingAction)
         {
-            if (latestBlob == null)
+            if (latestAiBlob == null)
             { // Nothing has been fetched from this folder yet, we will try to do inital population
                 
                 //The reason may be: 1. initial populate 2. the folder is missing on the storage 3. no blobs exist in that folder
-                latestBlob = _blobReader.GetLatestBlobInfo(topFolder);
-                if (latestBlob != null)
+                latestAiBlob = _blobReader.GetLatestBlobInfo(topFolder);
+                if (latestAiBlob != null)
                 {
                     // A blob, time for the initial item-adding!
-                    var initalBlobs = _blobReader.GetBlobInfosFromFolder(latestBlob.Folder);
+                    var initalBlobs = _blobReader.GetBlobInfosFromFolder(latestAiBlob.Folder);
                     itemAddingAction(initalBlobs);
                 }
             }
@@ -90,45 +93,45 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             { // We already have items, time to populate new items if any
 
                 // First check for remaining blobs in the lastly checked folder and add them
-                var newerBlobsSameFolder = GetNewerBlobsFromSameFolder(latestBlob);
+                var newerBlobsSameFolder = GetNewerBlobsFromSameFolder(latestAiBlob);
                 if (newerBlobsSameFolder != null && newerBlobsSameFolder.Any())
                 {
                     Console.WriteLine("Add new items from same folder as last!");
                     itemAddingAction(newerBlobsSameFolder);
-                    latestBlob = newerBlobsSameFolder.Last();
+                    latestAiBlob = newerBlobsSameFolder.Last();
                 }
 
                 // Then check for blobs in the newest folder if any exist, and add them.
-                var newerBlobsInOtherFolder = GetNewerBlobsFromNewestFolder(topFolder, latestBlob);
+                var newerBlobsInOtherFolder = GetNewerBlobsFromNewestFolder(topFolder, latestAiBlob);
                 if (newerBlobsInOtherFolder != null && newerBlobsInOtherFolder.Any())
                 {
                     Console.WriteLine("Add new items from completely new folder!");
                     itemAddingAction(newerBlobsInOtherFolder);
-                    latestBlob = newerBlobsInOtherFolder.Last();
+                    latestAiBlob = newerBlobsInOtherFolder.Last();
                 }
             }
         }
 
-        private List<BlobInfo> GetNewerBlobsFromNewestFolder(string topFolder, BlobInfo compareBlob)
+        private List<AiBlobInfo> GetNewerBlobsFromNewestFolder(string topFolder, AiBlobInfo compareAiBlob)
         {
             var latestBlobInNewestFolder = _blobReader.GetLatestBlobInfo(topFolder);
 
-            if (latestBlobInNewestFolder == null || latestBlobInNewestFolder.LastModified <= compareBlob.LastModified)
+            if (latestBlobInNewestFolder == null || latestBlobInNewestFolder.LastModified <= compareAiBlob.LastModified)
                 return null; // Nothing new
 
             var blobs = _blobReader
                 .GetBlobInfosFromFolder(latestBlobInNewestFolder.Folder)
-                .Where(p => p.LastModified > compareBlob.LastModified)
+                .Where(p => p.LastModified > compareAiBlob.LastModified)
                 .ToList();
             return blobs;
         }
 
-        private List<BlobInfo> GetNewerBlobsFromSameFolder(BlobInfo latestFetchedTraceBlobInfo)
+        private List<AiBlobInfo> GetNewerBlobsFromSameFolder(AiBlobInfo latestFetchedTraceAiBlobInfo)
         {
             // 1: Investigate if new blobs have arrived to the last folder we investigated
             var newBlobsInLastFolder = _blobReader
-                .GetBlobInfosFromFolder(latestFetchedTraceBlobInfo.Folder)
-                .Where(p => p.LastModified > latestFetchedTraceBlobInfo.LastModified)
+                .GetBlobInfosFromFolder(latestFetchedTraceAiBlobInfo.Folder)
+                .Where(p => p.LastModified > latestFetchedTraceAiBlobInfo.LastModified)
                 .ToList();
             return newBlobsInLastFolder;
         }
@@ -145,14 +148,14 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
             ProcessItems(
                 topFolder: ExceptionsFolderName
-                , latestBlob: ref _latestFetchedExceptionBlobInfo
+                , latestAiBlob: ref _latestFetchedExceptionAiBlobInfo
                 , itemAddingAction: AddExceptions);
 
             // Resume timer
             timer.Start();
         }
 
-        private void AddExceptions(List<BlobInfo> fromBlobs)
+        private void AddExceptions(List<AiBlobInfo> fromBlobs)
         {
             if (!fromBlobs.Any())
                 return;
@@ -178,14 +181,14 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
             ProcessItems(
                 topFolder: CustomEventsFolderName
-                , latestBlob: ref _latestFetchedEventBlobInfo
+                , latestAiBlob: ref _latestFetchedEventAiBlobInfo
                 , itemAddingAction: AddEvents);
 
             // Resume timer
             timer.Start();
         }
 
-        private void AddEvents(List<BlobInfo> fromBlobs)
+        private void AddEvents(List<AiBlobInfo> fromBlobs)
         {
             if (!fromBlobs.Any())
                 return;
@@ -211,14 +214,14 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
             ProcessItems(
                 topFolder: TracesFolderName
-                , latestBlob: ref _latestFetchedTraceBlobInfo
+                , latestAiBlob: ref _latestFetchedTraceAiBlobInfo
                 , itemAddingAction: AddTraces);
 
             // Resume timer
             timer.Start();
         }
 
-        private void AddTraces(List<BlobInfo> fromBlobs)
+        private void AddTraces(List<AiBlobInfo> fromBlobs)
         {
             if (!fromBlobs.Any())
                 return;

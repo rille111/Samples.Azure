@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
-    public class BlobInfo
+    public class AiBlobInfo
     {
         /// <summary>
         /// Only the filename
@@ -22,13 +22,9 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// </summary>
         public string Folder { get; set; }
         /// <summary>
-        /// Only the day part. May contain '/'. Example "2004-12-31"
+        /// The complete folder path up to the day, excluding the hour
         /// </summary>
-        public string FolderDayPart => string.Join(string.Empty, Uri.Segments.Skip(4).Take(1)).Trim('/');
-        /// <summary>
-        /// Only the day part. May contain '/'. Example "2004-12-31"
-        /// </summary>
-        public string FolderHourPart => string.Join(string.Empty, Uri.Segments.Skip(5).Take(1)).Trim('/');
+        public string FolderDay => string.Join(string.Empty, Uri.Segments.Skip(2).Take(3)).Trim('/');
 
     }
 }

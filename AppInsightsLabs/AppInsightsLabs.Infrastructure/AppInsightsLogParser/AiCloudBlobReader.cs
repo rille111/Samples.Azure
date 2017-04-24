@@ -11,13 +11,13 @@ using Microsoft.WindowsAzure.Storage.Blob;
 namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 {
     // ReSharper disable RedundantArgumentDefaultValue
-    public class CloudBlobReader
+    public class AiCloudBlobReader
     {
         private readonly string _rootFolder;
         private readonly CloudBlobClient _blobClient;
         private readonly CloudBlobContainer _container;
 
-        public CloudBlobReader(string connString, string containerName, string rootFolder = "")
+        public AiCloudBlobReader(string connString, string containerName, string rootFolder = "")
         {
             _rootFolder = rootFolder.Trim(new []{'/', '\\'});
 
@@ -29,7 +29,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// <summary>
         /// Get info for all blobs in the entire container. Use with care!
         /// </summary>
-        public List<BlobInfo> GetAllBlobInfos()
+        public List<AiBlobInfo> GetAllBlobInfos()
         {
             return ListBlobs(_rootFolder).ConfigureAwait(false).GetAwaiter().GetResult();
         }
@@ -37,7 +37,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// <summary>
         /// Get infos for all blobs in a given folder.
         /// </summary>
-        public List<BlobInfo> GetBlobInfosFromFolder(string folder)
+        public List<AiBlobInfo> GetBlobInfosFromFolder(string folder)
         {
             return ListBlobs($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
         }
@@ -45,12 +45,11 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// <summary>
         /// Get infos for all blobs in a given folder and its sub folders.
         /// </summary>
-        public List<BlobInfo> GetBlobInfosFromFolderAndSubFolders(string folder)
+        public List<AiBlobInfo> GetBlobInfosFromFolderAndSubFolders(string topFolder)
         {
-            var ret = new List<BlobInfo>();
-            var topFolder = $"{_rootFolder}/{folder}";
+            var ret = new List<AiBlobInfo>();
             var allFolders = BuildFlatRecursiveFolderList(topFolder);
-            var tasks = new List<Task<List<BlobInfo>>>();
+            var tasks = new List<Task<List<AiBlobInfo>>>();
             allFolders.Add(topFolder);
             foreach (var currentFolder in allFolders)
             {
@@ -92,7 +91,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// 3. Scans the files
         /// </summary>
         /// <param name="eventTypeFolder">e.g. "Messages" or "Exceptions" </param>
-        public BlobInfo GetLatestBlobInfo(string eventTypeFolder)
+        public AiBlobInfo GetLatestBlobInfo(string eventTypeFolder)
         {
             var folder = $"{_rootFolder}/{eventTypeFolder}";
             
@@ -132,9 +131,9 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             return blobsInThatFolder.OrderBy(p => p.LastModified).Last();
         }
 
-        public string[] ToStringsForEveryLine(BlobInfo blobInfo)
+        public string[] ToStringsForEveryLine(AiBlobInfo aiBlobInfo)
         {
-            var blobRef = _blobClient.GetBlobReferenceFromServer(blobInfo.Uri);
+            var blobRef = _blobClient.GetBlobReferenceFromServer(aiBlobInfo.Uri);
 
             string text;
             using (var memStream = new MemoryStream())
@@ -146,7 +145,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             return stringlines;
         }
 
-        private async Task<List<BlobInfo>> ListBlobs(string folder)
+        private async Task<List<AiBlobInfo>> ListBlobs(string folder)
         {
             var cloudDirectory = _container.GetDirectoryReference(folder);
             var resultSegment = await cloudDirectory.ListBlobsSegmentedAsync(true, BlobListingDetails.All, 10, null, null, null);
@@ -176,9 +175,9 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             return blobItemsToReturn;
         }
 
-        private BlobInfo CreateBlobInfo(CloudBlockBlob blobItem)
+        private AiBlobInfo CreateBlobInfo(CloudBlockBlob blobItem)
         {
-            return new BlobInfo
+            return new AiBlobInfo
             {
                 FileName = blobItem.StorageUri.PrimaryUri.Segments.Last(),
                 Uri = blobItem.StorageUri.PrimaryUri,

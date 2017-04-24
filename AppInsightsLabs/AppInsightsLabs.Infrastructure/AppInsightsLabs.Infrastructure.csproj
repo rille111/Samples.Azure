@@ -98,9 +98,9 @@
     <Compile Include="AppInsightsLogParser\AppInsightsExceptionItem.cs" />
     <Compile Include="AppInsightsLogParser\AppInsightsEventItem.cs" />
     <Compile Include="AppInsightsLogParser\AppInsightsObserver.cs" />
-    <Compile Include="AppInsightsLogParser\BlobStorageReader.cs" />
+    <Compile Include="AppInsightsLogParser\AiCloudBlobReader.cs" />
     <Compile Include="AppInsightsLogParser\AppInsightsItemParser.cs" />
-    <Compile Include="AppInsightsLogParser\BlobInfo.cs" />
+    <Compile Include="AppInsightsLogParser\AiBlobInfo.cs" />
     <Compile Include="Logging\AppInsightsLogger.cs" />
     <Compile Include="Logging\AppInsightsLoggerProperties.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />

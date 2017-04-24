@@ -19,25 +19,26 @@ namespace AppInsightsLabs
             var containerName = (string)config["StorageAccountContainerName"]; 
             var containerFolder = (string)config["StorageAccountAppInsightsDumpRootFolder"];
             
-            var blobReader = new CloudBlobReader(connString, containerName, containerFolder);
+            var blobReader = new AiCloudBlobReader(connString, containerName, containerFolder);
 
             // Example #1 (polling)
-            //StartPollingWithObserver(blobReader);
+            StartPollingWithObserver(blobReader);
 
             // Example #2 (one time read for the latest logs)
-            GetTracesForLastDay(blobReader);
+            //GetTracesForLastDay(blobReader);
 
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
         }
 
-        private static void GetTracesForLastDay(CloudBlobReader blobReader)
+        private static void GetTracesForLastDay(AiCloudBlobReader blobReader)
         {
             var parser = new AppInsightsItemParser();
             var latestTraceBlob = blobReader.GetLatestBlobInfo("Messages");
             //var allBlobs = blobReader.GetBlobInfosFromFolderAndSubFolders("Messages");
-            //var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders($"Messages/{latestTraceBlob.FolderDayPart}/{latestTraceBlob.FolderHourPart}/");
-            var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders($"Messages/{latestTraceBlob.FolderDayPart}/");
+            var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.FolderDay); // For the entire day
+            //var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.Folder); // For the latest hour
+
             var everyLine = blobs.SelectMany(blobReader.ToStringsForEveryLine).ToList();
             var traces = parser.ParseTraceItems(everyLine).ToList();
             
@@ -48,7 +49,7 @@ namespace AppInsightsLabs
             Console.WriteLine($"Blobs: {blobs.Count}, Traces: {traces.Count}, Earliest-Utc: {first}, Latest-Utc: {last}");
         }
 
-        private static void StartPollingWithObserver(CloudBlobReader blobReader)
+        private static void StartPollingWithObserver(AiCloudBlobReader blobReader)
         {
             var aiObserver = new AppInsightsObserver(blobReader, new AppInsightsItemParser(), TimeSpan.FromSeconds(1));
 
