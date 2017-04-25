@@ -45,7 +45,6 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             _pollingInterval = pollingInterval;
         }
 
-
         #region Common
 
         /// <summary>
@@ -238,43 +237,3 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         #endregion
     }
 }
-
-//#region Traces 
-
-//public void PopulateTracesAndStartTimer(TimeSpan pollingInterval)
-//{
-//    _latestFetchedTraceBlobInfo = _blobReader.GetLatestBlobInfo("Messages");
-//    var blobs = _blobReader.GetBlobInfosFromFolder(_latestFetchedTraceBlobInfo.Folder);
-//    AddTraces(blobs);
-
-//    _traceUpdateTimer = new Timer(pollingInterval.TotalMilliseconds);
-//    _traceUpdateTimer.Elapsed += PollTraces;
-//    _traceUpdateTimer.Enabled = true;
-//}
-
-//private void PollTraces(object sender, ElapsedEventArgs e)
-//{
-//    _traceUpdateTimer.Stop();
-
-//    var blobs = GetNewerBlobsFromSameFolder(_latestFetchedTraceBlobInfo);
-//    AddTraces(blobs);
-
-//    _traceUpdateTimer.Start();
-//}
-
-//private void AddTraces(List<BlobInfo> fromBlobs)
-//{
-//    if (!fromBlobs.Any())
-//        return;
-
-//    // 2: Add those
-//    var everyLine = fromBlobs.SelectMany(p => _blobReader.ToStringsForEveryLine(p));
-//    var everyLineAsList = everyLine.ToList(); // Takes time
-
-//    var traces = _itemParser.ParseTraceItems(everyLineAsList).ToList();
-//    TraceItems.AddRange(traces);
-//    _latestFetchedTraceBlobInfo = fromBlobs.Last();
-//    OnTraceItemsAdded?.Invoke(traces);
-//}
-
-//#endregion

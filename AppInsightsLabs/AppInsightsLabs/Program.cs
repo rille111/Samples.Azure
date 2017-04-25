@@ -35,7 +35,7 @@ namespace AppInsightsLabs
         {
             var parser = new AppInsightsItemParser();
             var latestTraceBlob = blobReader.GetLatestBlobInfo("Messages");
-            //var allBlobs = blobReader.GetBlobInfosFromFolderAndSubFolders("Messages");
+            //var allBlobs = blobReader.GetBlobInfosFromFolderAndSubFolders("Messages"); // Careful! All logs will be parsed!
             var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.FolderDay); // For the entire day
             //var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.Folder); // For the latest hour
 

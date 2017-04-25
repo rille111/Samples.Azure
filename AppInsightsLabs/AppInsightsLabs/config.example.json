@@ -2,5 +2,5 @@
   "StorageAccountConnectionString": "", // Example "DefaultEndpointsProtocol=https;AccountName=STORAGEACCOUNTNAME;AccountKey=SECRET;EndpointSuffix=core.windows.net"
   "StorageAccountContainerName": "", // Example "MY_CONTAINER"
   "StorageAccountAppInsightsDumpRootFolder": "", // Example "myappinsightsinstance_ca5433-42a343-916ec", follows the format: [appinsights_name]_[instrumentationkey]
-  "AppInsightsInstrumentationKey": "" // Example "ca5433-42a343-916ec"
+  "AppInsightsInstrumentationKey": "" // Example "ca5433-42a343-916ec" it's normally a guid.
 }
