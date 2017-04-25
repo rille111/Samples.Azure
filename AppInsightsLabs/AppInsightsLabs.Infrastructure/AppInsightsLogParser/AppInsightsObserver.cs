@@ -82,7 +82,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             { // Nothing has been fetched from this folder yet, we will try to do inital population
 
                 //The reason may be: 1. initial populate 2. the folder is missing on the storage 3. no blobs exist in that folder
-                latestAiBlob = _blobReader.GetLatestBlobInfo(topFolder);
+                latestAiBlob = await _blobReader.GetLatestBlobInfoAsync(topFolder);
                 if (latestAiBlob != null)
                 {
                     // A blob, time for the initial item-adding!
@@ -115,7 +115,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
         private async Task<List<AiBlobInfo>> GetNewerBlobsFromNewestFolderAsync(string topFolder, AiBlobInfo compareAiBlob)
         {
-            var latestBlobInNewestFolder = _blobReader.GetLatestBlobInfo(topFolder);
+            var latestBlobInNewestFolder = await _blobReader.GetLatestBlobInfoAsync(topFolder);
 
             if (latestBlobInNewestFolder == null || latestBlobInNewestFolder.LastModified <= compareAiBlob.LastModified)
                 return null; // Nothing new

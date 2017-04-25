@@ -46,7 +46,7 @@ namespace AppInsightsLabs.ConsoleListener
         private static async void GetTracesForLastDay(AiCloudBlobReader blobReader)
         {
             var parser = new AppInsightsItemParser();
-            var latestTraceBlob = blobReader.GetLatestBlobInfo("Messages");
+            var latestTraceBlob = await blobReader.GetLatestBlobInfoAsync("Messages");
             var blobs = await blobReader.GetBlobInfosFromFolderAndSubFoldersAsync(latestTraceBlob.FolderDay); // For the entire day
 
             var everyLine = blobs.SelectMany(blobReader.ToStringsForEveryLine).ToList();

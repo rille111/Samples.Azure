@@ -91,7 +91,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// 3. Scans the files
         /// </summary>
         /// <param name="eventTypeFolder">e.g. "Messages" or "Exceptions" </param>
-        public AiBlobInfo GetLatestBlobInfo(string eventTypeFolder)
+        public async Task<AiBlobInfo> GetLatestBlobInfoAsync(string eventTypeFolder)
         {
             var folder = $"{_rootFolder}/{eventTypeFolder}";
             
@@ -127,7 +127,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             var lastDayHourFolder =  $"{folder}/{lastDay.ToString("yyyy-MM-dd")}/{lastHour.ToString().PadLeft(2, '0')}";
 
             // List the blobs and choose the newest
-            var blobsInThatFolder = ListBlobsAsync(lastDayHourFolder).ConfigureAwait(false).GetAwaiter().GetResult();
+            var blobsInThatFolder = await ListBlobsAsync(lastDayHourFolder);
             return blobsInThatFolder.OrderBy(p => p.LastModified).Last();
         }
 

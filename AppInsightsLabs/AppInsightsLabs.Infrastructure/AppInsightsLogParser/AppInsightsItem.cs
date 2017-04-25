@@ -45,5 +45,18 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
                 }
             }
         }
+
+        protected static string FindCustomDimensionsProperty(JArray cust, string propertyName)
+        {
+            foreach (var token in cust)
+            {
+                var prop = token[propertyName];
+                if (prop != null)
+                {
+                    return prop.Value<string>();
+                }
+            }
+            return string.Empty;
+        }
     }
 }
