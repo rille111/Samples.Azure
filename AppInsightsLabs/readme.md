@@ -33,3 +33,20 @@ the TelemetryChannel, batches of telemetry gets sent to the AI endpoint. I have 
 in many ways to have it more "real time" - but to no avail. For this solution, it may take betwen 1-20 minutes before
 anything actually shows up in AI Analytics portal.
 However - the export to the Storage Account seem instant (and probably the AI API).
+
+### References and links
+// First, enable export to your storage account
+https://docs.microsoft.com/en-us/azure/application-insights/app-insights-export-telemetry
+
+// About the API
+https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics
+
+// About the ApplicationInsights channels (sending metrics)
+http://apmtips.com/blog/2015/09/03/more-telemetry-channels/
+
+// More good to know about the channels
+http://stackoverflow.com/questions/37551596/application-insights-not-logging-custom-events
+http://apmtips.com/blog/2015/02/02/developer-mode/
+
+// About custom metrics
+https://github.com/Azure/azure-content-nlnl/blob/master/articles/application-insights/app-insights-api-custom-events-metrics.md
