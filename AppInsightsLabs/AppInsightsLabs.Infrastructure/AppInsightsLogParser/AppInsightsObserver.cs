@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
@@ -74,64 +75,61 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             }
         }
 
-        private void ProcessItems(string topFolder, ref AiBlobInfo latestAiBlob, Action<List<AiBlobInfo>> itemAddingAction)
+        private async Task<AiBlobInfo> ProcessItemsReturnLatestFetchedBlobAsync(string topFolder, AiBlobInfo latestAiBlob, Action<List<AiBlobInfo>> itemAddingAction)
         {
+            var returnBlob = latestAiBlob;
             if (latestAiBlob == null)
             { // Nothing has been fetched from this folder yet, we will try to do inital population
-                
+
                 //The reason may be: 1. initial populate 2. the folder is missing on the storage 3. no blobs exist in that folder
                 latestAiBlob = _blobReader.GetLatestBlobInfo(topFolder);
                 if (latestAiBlob != null)
                 {
                     // A blob, time for the initial item-adding!
-                    var initalBlobs = _blobReader.GetBlobInfosFromFolder(latestAiBlob.Folder);
+                    var initalBlobs = await _blobReader.GetBlobInfosFromFolderAsync(latestAiBlob.Folder);
                     itemAddingAction(initalBlobs);
                 }
+                return latestAiBlob;
             }
-            else
-            { // We already have items, time to populate new items if any
 
-                // First check for remaining blobs in the lastly checked folder and add them
-                var newerBlobsSameFolder = GetNewerBlobsFromSameFolder(latestAiBlob);
-                if (newerBlobsSameFolder != null && newerBlobsSameFolder.Any())
-                {
-                    Console.WriteLine("Add new items from same folder as last!");
-                    itemAddingAction(newerBlobsSameFolder);
-                    latestAiBlob = newerBlobsSameFolder.Last();
-                }
-
-                // Then check for blobs in the newest folder if any exist, and add them.
-                var newerBlobsInOtherFolder = GetNewerBlobsFromNewestFolder(topFolder, latestAiBlob);
-                if (newerBlobsInOtherFolder != null && newerBlobsInOtherFolder.Any())
-                {
-                    Console.WriteLine("Add new items from completely new folder!");
-                    itemAddingAction(newerBlobsInOtherFolder);
-                    latestAiBlob = newerBlobsInOtherFolder.Last();
-                }
+            // We already have items, time to populate new items if any
+            // First check for remaining blobs in the lastly checked folder and add them
+            var newerBlobsSameFolder = await GetNewerBlobsFromSameFolderAsync(latestAiBlob);
+            if (newerBlobsSameFolder != null && newerBlobsSameFolder.Any())
+            {
+                Console.WriteLine("Add new items from same folder as last!");
+                itemAddingAction(newerBlobsSameFolder);
+                returnBlob = newerBlobsSameFolder.Last();
             }
+
+            // Then check for blobs in the newest folder if any exist, and add them.
+            var newerBlobsInOtherFolder = await GetNewerBlobsFromNewestFolderAsync(topFolder, latestAiBlob);
+            if (newerBlobsInOtherFolder != null && newerBlobsInOtherFolder.Any())
+            {
+                Console.WriteLine("Add new items from completely new folder!");
+                itemAddingAction(newerBlobsInOtherFolder);
+                returnBlob = newerBlobsInOtherFolder.Last();
+            }
+            return returnBlob;
         }
 
-        private List<AiBlobInfo> GetNewerBlobsFromNewestFolder(string topFolder, AiBlobInfo compareAiBlob)
+        private async Task<List<AiBlobInfo>> GetNewerBlobsFromNewestFolderAsync(string topFolder, AiBlobInfo compareAiBlob)
         {
             var latestBlobInNewestFolder = _blobReader.GetLatestBlobInfo(topFolder);
 
             if (latestBlobInNewestFolder == null || latestBlobInNewestFolder.LastModified <= compareAiBlob.LastModified)
                 return null; // Nothing new
 
-            var blobs = _blobReader
-                .GetBlobInfosFromFolder(latestBlobInNewestFolder.Folder)
-                .Where(p => p.LastModified > compareAiBlob.LastModified)
-                .ToList();
+            var blobs = await _blobReader.GetBlobInfosFromFolderAsync(latestBlobInNewestFolder.Folder);
+            blobs = blobs.Where(p => p.LastModified > compareAiBlob.LastModified).ToList();
             return blobs;
         }
 
-        private List<AiBlobInfo> GetNewerBlobsFromSameFolder(AiBlobInfo latestFetchedTraceAiBlobInfo)
+        private async Task<List<AiBlobInfo>> GetNewerBlobsFromSameFolderAsync(AiBlobInfo latestFetchedTraceAiBlobInfo)
         {
             // 1: Investigate if new blobs have arrived to the last folder we investigated
-            var newBlobsInLastFolder = _blobReader
-                .GetBlobInfosFromFolder(latestFetchedTraceAiBlobInfo.Folder)
-                .Where(p => p.LastModified > latestFetchedTraceAiBlobInfo.LastModified)
-                .ToList();
+            var newBlobsInLastFolder = await _blobReader.GetBlobInfosFromFolderAsync(latestFetchedTraceAiBlobInfo.Folder);
+            newBlobsInLastFolder = newBlobsInLastFolder.Where(p => p.LastModified > latestFetchedTraceAiBlobInfo.LastModified).ToList();
             return newBlobsInLastFolder;
         }
 
@@ -139,15 +137,15 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
         #region Exceptions
 
-        private void PollExceptions(object sender, ElapsedEventArgs e)
+        private async void PollExceptions(object sender, ElapsedEventArgs e)
         {
             // Stop timer
-            var timer = (Timer) sender;
+            var timer = (Timer)sender;
             timer.Stop();
 
-            ProcessItems(
+            _latestFetchedExceptionAiBlobInfo = await ProcessItemsReturnLatestFetchedBlobAsync(
                 topFolder: ExceptionsFolderName
-                , latestAiBlob: ref _latestFetchedExceptionAiBlobInfo
+                , latestAiBlob: _latestFetchedExceptionAiBlobInfo
                 , itemAddingAction: AddExceptions);
 
             // Resume timer
@@ -172,15 +170,15 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
         #region Events
 
-        private void PollEvents(object sender, ElapsedEventArgs e)
+        private async void PollEvents(object sender, ElapsedEventArgs e)
         {
             // Stop timer
             var timer = (Timer)sender;
             timer.Stop();
 
-            ProcessItems(
+            _latestFetchedEventAiBlobInfo = await ProcessItemsReturnLatestFetchedBlobAsync(
                 topFolder: CustomEventsFolderName
-                , latestAiBlob: ref _latestFetchedEventAiBlobInfo
+                , latestAiBlob: _latestFetchedEventAiBlobInfo
                 , itemAddingAction: AddEvents);
 
             // Resume timer
@@ -205,15 +203,15 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
 
         #region Traces 
 
-        private void PollTraces(object sender, ElapsedEventArgs e)
+        private async void PollTraces(object sender, ElapsedEventArgs e)
         {
             // Stop timer
             var timer = (Timer)sender;
             timer.Stop();
 
-            ProcessItems(
+            _latestFetchedTraceAiBlobInfo = await ProcessItemsReturnLatestFetchedBlobAsync(
                 topFolder: TracesFolderName
-                , latestAiBlob: ref _latestFetchedTraceAiBlobInfo
+                , latestAiBlob: _latestFetchedTraceAiBlobInfo
                 , itemAddingAction: AddTraces);
 
             // Resume timer

@@ -29,17 +29,17 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// <summary>
         /// Get info for all blobs in the entire container. Use with care!
         /// </summary>
-        public List<AiBlobInfo> GetAllBlobInfos()
+        public async Task<List<AiBlobInfo>> GetAllBlobInfosAsync()
         {
-            return ListBlobsAsync(_rootFolder).ConfigureAwait(false).GetAwaiter().GetResult();
+            return await ListBlobsAsync(_rootFolder);
         }
 
         /// <summary>
         /// Get infos for all blobs in a given folder.
         /// </summary>
-        public List<AiBlobInfo> GetBlobInfosFromFolder(string folder)
+        public async Task<List<AiBlobInfo>> GetBlobInfosFromFolderAsync(string folder)
         {
-            return ListBlobsAsync($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
+            return await ListBlobsAsync($"{folder}");
         }
 
         /// <summary>
