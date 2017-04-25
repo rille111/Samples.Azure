@@ -27,17 +27,27 @@ namespace AppInsightsLabs.ConsoleListener
             // Example #2 (one time read for the latest logs)
             //GetTracesForLastDay(blobReader);
 
+            // Example #3 (read all exceptions for all time)
+            //GetAllExceptions(blobReader, containerFolder);
+
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
         }
 
-        private static void GetTracesForLastDay(AiCloudBlobReader blobReader)
+        private static async void GetAllExceptions(AiCloudBlobReader blobReader, string containerFolder)
+        {
+            var parser = new AppInsightsItemParser();
+            var blobs = await blobReader.GetBlobInfosFromFolderAndSubFoldersAsync($"{containerFolder}/Exceptions"); // Careful! All logs will be parsed!
+            var everyLine = blobs.SelectMany(blobReader.ToStringsForEveryLine).ToList();
+            var items = parser.ParseExceptionItems(everyLine).ToList();
+            PrintBlobInfo(items);
+        }
+
+        private static async void GetTracesForLastDay(AiCloudBlobReader blobReader)
         {
             var parser = new AppInsightsItemParser();
             var latestTraceBlob = blobReader.GetLatestBlobInfo("Messages");
-            //var allBlobs = blobReader.GetBlobInfosFromFolderAndSubFolders("Messages"); // Careful! All logs will be parsed!
-            var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.FolderDay); // For the entire day
-            //var blobs = blobReader.GetBlobInfosFromFolderAndSubFolders(latestTraceBlob.Folder); // For the latest hour
+            var blobs = await blobReader.GetBlobInfosFromFolderAndSubFoldersAsync(latestTraceBlob.FolderDay); // For the entire day
 
             var everyLine = blobs.SelectMany(blobReader.ToStringsForEveryLine).ToList();
             var traces = parser.ParseTraceItems(everyLine).ToList();

@@ -31,7 +31,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// </summary>
         public List<AiBlobInfo> GetAllBlobInfos()
         {
-            return ListBlobs(_rootFolder).ConfigureAwait(false).GetAwaiter().GetResult();
+            return ListBlobsAsync(_rootFolder).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -39,13 +39,13 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// </summary>
         public List<AiBlobInfo> GetBlobInfosFromFolder(string folder)
         {
-            return ListBlobs($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
+            return ListBlobsAsync($"{folder}").ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Get infos for all blobs in a given folder and its sub folders.
         /// </summary>
-        public List<AiBlobInfo> GetBlobInfosFromFolderAndSubFolders(string topFolder)
+        public async Task<List<AiBlobInfo>> GetBlobInfosFromFolderAndSubFoldersAsync(string topFolder)
         {
             var ret = new List<AiBlobInfo>();
             var allFolders = BuildFlatRecursiveFolderList(topFolder);
@@ -53,12 +53,12 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             allFolders.Add(topFolder);
             foreach (var currentFolder in allFolders)
             {
-                var t = ListBlobs(currentFolder);
+                var t = ListBlobsAsync(currentFolder);
                 tasks.Add(t);
             }
 
-            var blobInfoList = Task.WhenAll(tasks).ConfigureAwait(false).GetAwaiter().GetResult();
-            
+            var blobInfoList = await Task.WhenAll(tasks);
+
             foreach (var blobInfos in blobInfoList)
             {
                 ret.AddRange(blobInfos);
@@ -127,7 +127,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             var lastDayHourFolder =  $"{folder}/{lastDay.ToString("yyyy-MM-dd")}/{lastHour.ToString().PadLeft(2, '0')}";
 
             // List the blobs and choose the newest
-            var blobsInThatFolder = ListBlobs(lastDayHourFolder).ConfigureAwait(false).GetAwaiter().GetResult();
+            var blobsInThatFolder = ListBlobsAsync(lastDayHourFolder).ConfigureAwait(false).GetAwaiter().GetResult();
             return blobsInThatFolder.OrderBy(p => p.LastModified).Last();
         }
 
@@ -145,7 +145,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             return stringlines;
         }
 
-        private async Task<List<AiBlobInfo>> ListBlobs(string folder)
+        private async Task<List<AiBlobInfo>> ListBlobsAsync(string folder)
         {
             var cloudDirectory = _container.GetDirectoryReference(folder);
             var resultSegment = await cloudDirectory.ListBlobsSegmentedAsync(true, BlobListingDetails.All, 10, null, null, null);
