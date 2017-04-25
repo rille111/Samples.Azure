@@ -1,4 +1,4 @@
-﻿namespace AppInsightsLabs.AppInsightsLogger
+﻿namespace AppInsightsLabs.LogWriterApp
 {
     public static class Start
     {

@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 
-namespace AppInsightsLabs.AppInsightsLogger
+namespace AppInsightsLabs.LogWriterApp
 {
     public partial class frmStart : Form
     {

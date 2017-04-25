@@ -4,6 +4,8 @@ Or; let you read all logs from the last hour, day, or whatever.
 You can distinct what you want by traces, exceptions and events. There are more AI types, but not supported here yet. Feel free to create
 pull requests.
 
+![Image](azurelogdumper.png)
+
 == Export == 
 When the data is available in AI, it is available in the Storage Account almost instantly.
 Why export to a Storage Account when it is available in AI and its API? Because it's much cheaper.
@@ -23,6 +25,7 @@ See program.cs  for usage example.
 	* How to fetch all logs from the latest day and its hours
 
 Included a Windows Forms app as a bonus, to write logs to Application Insights so you can test easily.
+Set multiple projects = LogWriterApp and ConsoleListener and use the polling example.
 
 == Points of interest ==
 Flushing away stuff to Application Insights is not instant. An internal buffer is built up, and depending on

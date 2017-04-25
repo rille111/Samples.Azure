@@ -43,5 +43,10 @@ namespace AppInsightsLabs.Infrastructure.Logging
         {
             Console.Error.WriteLine($"{text}\n{ex}");
         }
+
+        public void CustomEvent(string text, ILoggerProperties properties = null)
+        {
+            Console.Out.WriteLine(text);
+        }
     }
 }

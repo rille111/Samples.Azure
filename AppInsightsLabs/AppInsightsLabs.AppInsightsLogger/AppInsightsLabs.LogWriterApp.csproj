@@ -7,8 +7,8 @@
     <ProjectGuid>{177F82E5-4936-4E6D-AA54-439FE80FFD08}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AppInsightsLabs.AppInsightsLogger</RootNamespace>
-    <AssemblyName>AppInsightsLabs.AppInsightsLogger</AssemblyName>
+    <RootNamespace>AppInsightsLabs.LogWriterApp</RootNamespace>
+    <AssemblyName>AppInsightsLabs.LogWriterApp</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>AppInsightsLabs.AppInsightsLogger.Start</StartupObject>
+    <StartupObject>AppInsightsLabs.LogWriterApp.Start</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

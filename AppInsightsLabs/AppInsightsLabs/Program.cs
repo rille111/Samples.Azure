@@ -5,7 +5,7 @@ using System.Linq;
 using AppInsightsLabs.Infrastructure.AppInsightsLogParser;
 using Newtonsoft.Json.Linq;
 
-namespace AppInsightsLabs
+namespace AppInsightsLabs.ConsoleListener
 {
     class Program
     {

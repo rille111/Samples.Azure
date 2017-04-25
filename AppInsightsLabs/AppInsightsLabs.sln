@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightsLabs", "AppInsightsLabs\AppInsightsLabs.csproj", "{8C5F9DFF-1A31-4DA6-87A4-EB00A14CBA94}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightsLabs.ConsoleListener", "AppInsightsLabs\AppInsightsLabs.ConsoleListener.csproj", "{8C5F9DFF-1A31-4DA6-87A4-EB00A14CBA94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightsLabs.Infrastructure", "AppInsightsLabs.Infrastructure\AppInsightsLabs.Infrastructure.csproj", "{C37D660E-8C37-4C47-BBDB-98E01C3A06C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightsLabs.AppInsightsLogger", "AppInsightsLabs.AppInsightsLogger\AppInsightsLabs.AppInsightsLogger.csproj", "{177F82E5-4936-4E6D-AA54-439FE80FFD08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightsLabs.LogWriterApp", "AppInsightsLabs.AppInsightsLogger\AppInsightsLabs.LogWriterApp.csproj", "{177F82E5-4936-4E6D-AA54-439FE80FFD08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66A575C3-C277-41B1-8976-B12670130D41}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
