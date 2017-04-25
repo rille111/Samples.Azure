@@ -46,9 +46,12 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             }
         }
 
-        protected static string FindCustomDimensionsProperty(JArray cust, string propertyName)
+        protected static string FindPropertyValueInArray(JArray jArray, string propertyName)
         {
-            foreach (var token in cust)
+            if (jArray == null || jArray.Count == 0)
+                return null;
+
+            foreach (var token in jArray)
             {
                 var prop = token[propertyName];
                 if (prop != null)
@@ -56,7 +59,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
                     return prop.Value<string>();
                 }
             }
-            return string.Empty;
+            return null;
         }
     }
 }

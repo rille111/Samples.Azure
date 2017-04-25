@@ -68,8 +68,8 @@ namespace AppInsightsLabs.ConsoleListener
             aiObserver.OnTraceItemsAdded += PrintBlobInfo;
 
             aiObserver.StartPolling<AppInsightsExceptionItem>();
-            //aiObserver.StartPolling<AppInsightsEventItem>();
-            //aiObserver.StartPolling<AppInsightsTraceItem>();
+            aiObserver.StartPolling<AppInsightsEventItem>();
+            aiObserver.StartPolling<AppInsightsTraceItem>();
 
             Console.WriteLine("\n\nPress any key to exit ..");
             Console.ReadKey();

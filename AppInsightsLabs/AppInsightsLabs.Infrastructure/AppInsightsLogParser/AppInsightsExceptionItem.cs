@@ -11,7 +11,7 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         public string AppVersion { get; set; }
         public string AppContext { get; set; }
 
-        public string OuterMessageTruncated => OuterMessage.PadRight(30).Substring(0, 30);
+        public string OuterMessageTruncated => OuterMessage?.PadRight(30).Substring(0, 30);
 
         public override string ToString()
         {
@@ -25,21 +25,19 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
             ret.ParseCommon(o);
 
             // Common
-            ret.ExceptionType = (string)o["basicException"][0]?["exceptionType"];
-            ret.ProblemId = (string)o["basicException"][0]?["problemId"];
-            ret.OuterMessage = (string)o["basicException"][1]?["outerExceptionMessage"];
+            var arr = o["basicException"] as JArray;
+            ret.ExceptionType = FindPropertyValueInArray(arr, "exceptionType");
+            ret.ProblemId = FindPropertyValueInArray(arr, "problemId");
+            ret.OuterMessage = FindPropertyValueInArray(arr, "outerMessage") ??
+                               FindPropertyValueInArray(arr, "outerExceptionMessage") ??
+                               FindPropertyValueInArray(arr, "message");
 
             // Custom dimensions
-            var cust = o["context"]["custom"]["dimensions"] as JArray;
-            if (cust == null || cust.Count == 0)
-                return ret;
-
-            ret.AppName = FindCustomDimensionsProperty(cust, "application_Name");
-            ret.AppContext = FindCustomDimensionsProperty(cust, "application_LogContext");
-            ret.AppVersion = FindCustomDimensionsProperty(cust, "application_Version");
+            var dims = o["context"]["custom"]["dimensions"] as JArray;
+            ret.AppName = FindPropertyValueInArray(dims, "application_Name");
+            ret.AppContext = FindPropertyValueInArray(dims, "application_LogContext");
+            ret.AppVersion = FindPropertyValueInArray(dims, "application_Version");
             return ret;
         }
-
-
     }
 }

@@ -47,23 +47,8 @@ namespace AppInsightsLabs.Infrastructure.AppInsightsLogParser
         /// </summary>
         public async Task<List<AiBlobInfo>> GetBlobInfosFromFolderAndSubFoldersAsync(string topFolder)
         {
-            var ret = new List<AiBlobInfo>();
-            var allFolders = BuildFlatRecursiveFolderList(topFolder);
-            var tasks = new List<Task<List<AiBlobInfo>>>();
-            allFolders.Add(topFolder);
-            foreach (var currentFolder in allFolders)
-            {
-                var t = ListBlobsAsync(currentFolder);
-                tasks.Add(t);
-            }
-
-            var blobInfoList = await Task.WhenAll(tasks);
-
-            foreach (var blobInfos in blobInfoList)
-            {
-                ret.AddRange(blobInfos);
-            }
-            return ret;
+            var blobInfoList = await ListBlobsAsync(topFolder);
+            return blobInfoList.ToList();
         }
 
         private List<string> BuildFlatRecursiveFolderList(string folder)
