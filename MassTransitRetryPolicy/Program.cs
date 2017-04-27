@@ -34,10 +34,10 @@ namespace MassTransitRetryPolicy
         {
             var config = new BusConfiguration
             {
-                // Endpoint=sb://rrdevtest.servicebus.windows.net/;SharedAccessKeyName=temp;SharedAccessKey=NntfMdNkQCW1oLNs1Q4ZGi4uxo/Ih+ji4ZIWVf/fpcs=
+                // Endpoint=sb://rrdevtest.servicebus.windows.net/;SharedAccessKeyName=XXXX;SharedAccessKey=YYYY
                 ConnectionUri = "sb://rrdevtest.servicebus.windows.net",
                 Login = "temp",
-                Password = "NntfMdNkQCW1oLNs1Q4ZGi4uxo/Ih+ji4ZIWVf/fpcs="
+                Password = "YYYY"
             };
 
             var configurator = new AzureSbBusConfigurator(config);
@@ -50,7 +50,7 @@ namespace MassTransitRetryPolicy
                         c.Consumer<WorldCommandConsumer>();
                     });
 
-                    // TODO: below doesn't work
+                    // TODO: below doesn't work, OR does it?? 
                     cfg.UseRetry(r => r.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5)));
                     // TODO: but this works ..
                     // cfg.UseRetry(Retry.Exponential(3, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5))); // works
