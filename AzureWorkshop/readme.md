@@ -1,12 +1,18 @@
 # AZURE WORKSHOP
 
-Workshop: Build a WebAPI and consume different datasources: AzureSQL, DocDb and StorageAccount.Tables
+Build a WebAPI and consume different datasources: AzureSQL, DocDb and StorageAccount.Tables
 
 ![Image](azureworkshop.png)
 
+# TOOLS AND RESOURCES
 
-* https://www.guidgenerator.com/online-guid-generator.aspx
-* See azureworkshop.png for what we're gonna build today (we're not building all of it yet)
+* SQL Server Management Studio (download the free community/develop edition, dunno if it works connecting to Azure tho)
+* Azure DocumentDb Studio (google it)
+* Microsoft Azure Storage Explorer (google it)
+* Service Bus Explorer (not using in this workshop yet)
+* https://www.guidgenerator.com/online-guid-generator.aspx  (generate guids for stuff we persist in the database)
+
+# STEP BY STEP
 
 * Create a WebApi (or use the prepared one in here)
 	* In Azure: (API App or Web App doesn't matter)
