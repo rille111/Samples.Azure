@@ -1,4 +1,10 @@
-AZURE WORKSHOP
+# AZURE WORKSHOP
+
+Workshop: Build a WebAPI and consume different datasources: AzureSQL, DocDb and StorageAccount.Tables
+
+![Image](azurelogdumper.png)
+
+
 * https://www.guidgenerator.com/online-guid-generator.aspx
 * See azureworkshop.png for what we're gonna build today (we're not building all of it yet)
 
