@@ -26,7 +26,7 @@ Workshop: Build a WebAPI and consume different datasources: AzureSQL, DocDb and 
 		* Remember login and pass: hejsan | !FooBar123
 		* Note databasename
 	* Create VS Project: Class Lib (no special nuget pkg needed)
-	* In SQLSMSS : Connect 'adl-wrk-sql-backbone.database.windows.net,1433' user:'hejsan' pass: '!FooBar123' 
+	* In SQLSMSS : Connect 'SERVERNAME.database.windows.net,1433' user:'hejsan' pass: '!FooBar123' 
 		* From: Server-Security-Login, create a login by running:
 			CREATE LOGIN hej
 				WITH PASSWORD = '!FooBar123' 
