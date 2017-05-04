@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.WebApi", "Orders.WebApi\Orders.WebApi.csproj", "{B761D597-CAD1-4304-9038-FFBCD912A8BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.Shared", "Orders.Shared\Orders.Shared.csproj", "{78C92F90-E762-4667-9160-59CB88BBB8CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.AzSqlRepository", "Orders.SqlRepository\Orders.AzSqlRepository.csproj", "{BCDF9A96-FED1-4751-81AA-C8D2A77427C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.AzStorageRepository", "Orders.AzStorageRepository\Orders.AzStorageRepository.csproj", "{F78830C0-7D42-4EE1-8F4C-937102113323}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.AzDocDbRepository", "Orders.AzDocDbRepository\Orders.AzDocDbRepository.csproj", "{B3308C7E-BB3F-4281-AB00-552AE96588F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.WebJob", "Orders.WebJob\Orders.WebJob.csproj", "{16AD3A53-590E-42F4-9EA8-3A1A7599B8F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repositories", "Repositories", "{0B103C6F-73B6-49A7-BD3F-F9B6D9B7EBDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F3503A7E-0580-4EC3-ABFD-5F222B1EF4AB}"
+	ProjectSection(SolutionItems) = preProject
+		azureworkshop.png = azureworkshop.png
+		readme.md = readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B761D597-CAD1-4304-9038-FFBCD912A8BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B761D597-CAD1-4304-9038-FFBCD912A8BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B761D597-CAD1-4304-9038-FFBCD912A8BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B761D597-CAD1-4304-9038-FFBCD912A8BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78C92F90-E762-4667-9160-59CB88BBB8CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78C92F90-E762-4667-9160-59CB88BBB8CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78C92F90-E762-4667-9160-59CB88BBB8CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78C92F90-E762-4667-9160-59CB88BBB8CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCDF9A96-FED1-4751-81AA-C8D2A77427C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCDF9A96-FED1-4751-81AA-C8D2A77427C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCDF9A96-FED1-4751-81AA-C8D2A77427C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCDF9A96-FED1-4751-81AA-C8D2A77427C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F78830C0-7D42-4EE1-8F4C-937102113323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F78830C0-7D42-4EE1-8F4C-937102113323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F78830C0-7D42-4EE1-8F4C-937102113323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F78830C0-7D42-4EE1-8F4C-937102113323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3308C7E-BB3F-4281-AB00-552AE96588F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3308C7E-BB3F-4281-AB00-552AE96588F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3308C7E-BB3F-4281-AB00-552AE96588F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3308C7E-BB3F-4281-AB00-552AE96588F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16AD3A53-590E-42F4-9EA8-3A1A7599B8F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16AD3A53-590E-42F4-9EA8-3A1A7599B8F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16AD3A53-590E-42F4-9EA8-3A1A7599B8F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16AD3A53-590E-42F4-9EA8-3A1A7599B8F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BCDF9A96-FED1-4751-81AA-C8D2A77427C7} = {0B103C6F-73B6-49A7-BD3F-F9B6D9B7EBDA}
+		{F78830C0-7D42-4EE1-8F4C-937102113323} = {0B103C6F-73B6-49A7-BD3F-F9B6D9B7EBDA}
+		{B3308C7E-BB3F-4281-AB00-552AE96588F5} = {0B103C6F-73B6-49A7-BD3F-F9B6D9B7EBDA}
+	EndGlobalSection
+EndGlobal
