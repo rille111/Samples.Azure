@@ -8,7 +8,8 @@ pull requests.
 
 ## Export
 When the data is available in AI, it is available in the Storage Account almost instantly.
-Why export to a Storage Account when it is available in AI and its API? Because it's much cheaper.
+Why export to a Storage Account when it is available in AI and its API? Because it's much cheaper!! 3.94 for each gig over 1gb, each month.
+Using the AppInsights API in itself cost alot, AND you will be polling the data and you dont want to do that against the API.
 
 ## Features
 * Real time polling of a storage account containing AI logs
@@ -35,11 +36,14 @@ anything actually shows up in AI Analytics portal.
 However - the export to the Storage Account seem instant (and probably the AI API).
 
 ### References and links
-// First, enable export to your storage account
+// First, enable export to your storage account (its done from the portal, go to the appinsights tab, choose an instance, go to cont. export)
 https://docs.microsoft.com/en-us/azure/application-insights/app-insights-export-telemetry
 
 // About the API
 https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics
+
+// There's a REST API
+https://dev.applicationinsights.io/
 
 // About the ApplicationInsights channels (sending metrics)
 http://apmtips.com/blog/2015/09/03/more-telemetry-channels/
