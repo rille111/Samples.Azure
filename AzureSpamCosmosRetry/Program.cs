@@ -7,8 +7,8 @@ namespace AzureSpamCosmosRetry
     public class Program
     {
 
-        private string _endpointUri = "https://myacct456.documents.azure.com:443/";
-        private string _accessKey = "0xEryhmmjBcU4aKMXxwzKaFvT0c6dkFCqxByTN5HUK63WrFbpLyJKJl9NgV1cCXXYcRcG6SeaagpSaT2PHR27w==";
+        private string _endpointUri = "https://yyy:443/";
+        private string _accessKey = "xxx";
         private bool _useRetry = true;
 
         private readonly FooRepository _repo1;
